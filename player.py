@@ -1,5 +1,5 @@
 import glob
-from collections import Counter
+from collections import Counter, defaultdict
 
 
 class Player():
@@ -56,39 +56,17 @@ class Player():
 
 
     def hero_stats_per_game(self):
-        hero_stats = {}
-        all_heroes = set(self.stats["hero"])
-        for hero in all_heroes:
-            hero_stats[hero] = {
-                "total_sr_gain" : 0,
-                "played_games" : 0,
-                "av_gain_per_game" : 0,
-                "av_gain_av_loss" : [[0, 0], [0, 0]], #To be averaged
-                "win_loss_ratio" : 0
-                }
-        for i, hero in enumerate(self.stats["hero"]):
-            hero_stats[hero]["total_sr_gain"] += self.sr_change[i]
-            hero_stats[hero]["played_games"] += 1
-            if self.stats["win"]:
-                index = 0
-                hero_stats[hero]["win_loss_ratio"] += 1
-            else:
-                index = 1
-            hero_stats[hero]["av_gain_av_loss"][index][0] += self.sr_change[i]
-            hero_stats[hero]["av_gain_av_loss"][index][1] += 1
+        hero_stats = defaultdict(lambda: defaultdict(int))
 
-        for hero in hero_stats:
-            hero_stats[hero]["win_loss_ratio"] = games / wins
-            for i in range(2):
-                ratio = hero_stats[hero]["av_gain_av_loss"][i]
-                try:
-                    average = ratio[0] / ratio[1]
-                except ZeroDivisionError:
-                    average = 0
-                hero_stats[hero]["av_gain_av_loss"][i] = average
-            played_games = hero_stats[hero]["played_games"]
-            total_change = hero_stats[hero]["total_sr_gain"]
-            hero_stats[hero]["av_gain_per_game"] = total_change / played_games
+        for i, hero in enumerate(self.stats["hero"]):
+            sr_change = self.sr_change[i]
+            hero_stats[hero]["total_change"] += sr_change
+            hero_stats[hero]["played_games"] += 1
+            if self.stats["win"][i]:
+                hero_stats[hero]["wins"] += 1
+                hero_stats[hero]["total_gained"] += sr_change
+            else:
+                hero_stats[hero]["total_lost"] += sr_change
 
         return hero_stats
 

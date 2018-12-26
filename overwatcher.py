@@ -8,4 +8,8 @@ from player import Player
 # main_page.show_options()
 
 mason = Player("Mason")
-print(mason.hero_stats)
+
+for hero, stats in mason.hero_stats.items():
+    print("\n" + hero)
+    for key, stat in stats.items():
+        print(key, stat, end = " ")
