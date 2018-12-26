@@ -25,7 +25,6 @@ class Player():
             "perf" : [],
             "time" : [],
             }
-
         with open (self.file_name, "r") as games:
             for i, game in enumerate(games):
                 game_stats = game.split()
@@ -67,27 +66,23 @@ class Player():
                 hero_stats[hero]["total_gained"] += sr_change
             else:
                 hero_stats[hero]["total_lost"] += sr_change
+        ranked_stats = self.rank_heroes(hero_stats)
 
-        return hero_stats
-
-
-
+        return ranked_stats
 
 
+    def rank_heroes(self, stats):
+        ranking = []
+        for hero, values in stats.items():
+            try:
+                av_change = values["total_change"] / values["played_games"]
+            except ZeroDivisionError:
+                av_change = 0
+            stats[hero]["av_change"] = av_change
+            ranking.append((av_change, hero))
 
+        sorted_rank = sorted(ranking, reverse=True)
+        for i in range(len(sorted_rank)):
+            stats[sorted_rank[i][1]]["rank"] = i +1
 
-
-
-
-#Average SR Gain/Loss
-#Season High
-#Season Low
-#All SR Over time
-#Change in SR per game
-#W/L
-#Played Heroes frequency
-#Which heroes played
-#All stats by hero
-#Best hero
-#Self reported performance
-#timelist
+        return stats
