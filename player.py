@@ -18,13 +18,8 @@ class Player():
 
 
     def get_stats(self):
-        stats = {
-            "sr" : [],
-            "win" : [],
-            "hero" : [],
-            "perf" : [],
-            "time" : [],
-            }
+        stats = defaultdict(list)
+        
         with open (self.file_name, "r") as games:
             for i, game in enumerate(games):
                 game_stats = game.split()
