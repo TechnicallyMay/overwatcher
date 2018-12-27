@@ -1,7 +1,6 @@
 class Page():
 
-    def __init__(self, name, key, to):
-        #Name of page
+    def __init__(self, name, key, to=[]):
         self.name = name
         #Which key leads to this page
         self.key = key
@@ -48,17 +47,17 @@ class Page():
 
 class PlotPage(Page):
 
-    def __init__(self, name, key, to):
+    def __init__(self, name, key, to=[]):
         super().__init__(name, key, to)
 
 
 class StatPage(Page):
 
-    def __init__(self,name, key, to):
+    def __init__(self,name, key, to=[]):
         super().__init__(name, key, to)
 
 
 class PlayersPage(Page):
 
-    def __init__(self,name, key, to):
+    def __init__(self,name, key, to=[]):
         super().__init__(name, key, to)
