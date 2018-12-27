@@ -3,13 +3,14 @@ import os
 from player import Player
 
 
-class Page():
+player_names = [os.path.basename(file).replace(".txt", "")
+                    for file in glob.glob('./data/players/*.txt')]
+players = []
+for name in player_names:
+    players.append(Player(name))
 
-    player_names = [os.path.basename(file).replace(".txt", "")
-                        for file in glob.glob('./data/players/*.txt')]
-    players = []
-    for name in player_names:
-        players.append(Player(name))
+
+class Page():
 
     def __init__(self, name, key, to=[]):
         self.name = name
@@ -87,7 +88,7 @@ class PlayersPage(Page):
 
     def add_player(self):
         name = input("Please enter player's name: ")
-        if name in self.player_names:
+        if name in player_names:
             print("Player already exists, try again.")
             self.add_player()
         sr = input("Please enter player's starting SR: ")
@@ -101,4 +102,19 @@ class PlayersPage(Page):
 
 
     def set_active(self):
-        pass
+        print("Which players would you like to activate?")
+        for i in range(len(players)):
+            print(i + 1, players[i].name)
+        choices = input().split()
+        print()
+        active = []
+        for choice in choices:
+            player = players[int(choice) - 1]
+            player.activate()
+            active.append(player)
+            print(player.name + " is now active!")
+        print()
+        for player in players:
+            if player not in active:
+                player.deactivate()
+            print(player.active)
