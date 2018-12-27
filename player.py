@@ -15,10 +15,23 @@ class Player():
 
 
     def activate(self):
+        self.active = True
         self.stats = self.get_stats()
         self.sr_change = self.sr_change_per_game()
         self.main_hero = self.most_played_hero()
         self.hero_stats = self.hero_stats_per_game()
+
+
+    def deactivate(self):
+        self.active = False
+        try:
+            del(self.stats)
+            del(self.sr_change)
+            del(self.main_hero)
+            del(self.hero_stats)
+        except AttributeError:
+            pass
+
 
     def get_stats(self):
         stats = defaultdict(list)
@@ -81,6 +94,6 @@ class Player():
 
         sorted_rank = sorted(ranking, reverse=True)
         for i in range(len(sorted_rank)):
-            stats[sorted_rank[i][1]]["rank"] = i +1
+            stats[sorted_rank[i][1]]["rank"] = i + 1
 
         return stats

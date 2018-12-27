@@ -1,3 +1,15 @@
+import glob
+import os
+from player import Player
+
+
+player_names = [os.path.basename(file).replace(".txt", "")
+                    for file in glob.glob('./data/players/*.txt')]
+players = []
+for name in player_names:
+    players.append(Player(name))
+
+
 class Page():
 
     def __init__(self, name, key, to=[]):
@@ -61,3 +73,48 @@ class PlayersPage(Page):
 
     def __init__(self,name, key, to=[]):
         super().__init__(name, key, to)
+
+
+    def prompt(self):
+        choice = input("Would you like to add players (A), or set active players (S)?").lower()
+        if choice == "a":
+            self.add_player()
+        elif choice == "s":
+            self.set_active()
+        else:
+            print("Invalid choice, going back.")
+            self.go_back()
+
+
+    def add_player(self):
+        name = input("Please enter player's name: ")
+        if name in player_names:
+            print("Player already exists, try again.")
+            self.add_player()
+        sr = input("Please enter player's starting SR: ")
+        try:
+            sr = int(sr)
+        except ValueError:
+            print("Invalid input, try again.")
+            self.add_player()
+        player = Player(name, sr)
+
+
+
+    def set_active(self):
+        print("Which players would you like to activate?")
+        for i in range(len(players)):
+            print(i + 1, players[i].name)
+        choices = input().split()
+        print()
+        active = []
+        for choice in choices:
+            player = players[int(choice) - 1]
+            player.activate()
+            active.append(player)
+            print(player.name + " is now active!")
+        print()
+        for player in players:
+            if player not in active:
+                player.deactivate()
+            print(player.active)
