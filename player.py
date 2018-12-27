@@ -11,9 +11,11 @@ class Player():
             with open(self.file_name, "w+") as new_player:
                 new_player.write(str(start_SR))
                 new_player.close()
+        self.active = False
 
 
     def activate(self):
+        self.active = True
         self.stats = self.get_stats()
         self.sr_change = self.sr_change_per_game()
         self.main_hero = self.most_played_hero()
@@ -21,10 +23,14 @@ class Player():
 
 
     def deactivate(self):
-        del(self.stats)
-        del(self.sr_change)
-        del(self.main_hero)
-        del(self.hero_stats)
+        self.active = False
+        try:
+            del(self.stats)
+            del(self.sr_change)
+            del(self.main_hero)
+            del(self.hero_stats)
+        except AttributeError:
+            pass
 
 
     def get_stats(self):
