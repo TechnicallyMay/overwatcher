@@ -1,5 +1,7 @@
 import glob
+import time
 import os
+from collections import defaultdict
 from player import Player
 
 
@@ -24,19 +26,18 @@ class Page():
 
     def show_options(self):
         for p in self.to:
-            print("Press '%s' for %s" % (p.key.upper(), p.name))
+            print("\nPress '%s' for %s" % (p.key.upper(), p.name))
         if self.back != None:
-            print("Press 'B' to return to %s" % self.back.name)
+            print("\nPress 'B' to return to %s" % self.back.name)
         if 'prompt' in dir(self):
-            print("Press 'F' to %s" % self.name)
+            print("\nPress 'F' to %s" % self.name)
         self.get_page_input()
 
 
     def get_page_input(self):
-        print()
         #All keys that lead to an option
         options = [key for page in self.to for key in page.key]
-        choice  = input().lower()
+        choice  = input("\n").lower()
         if choice == 'b' and self.back != None:
             self.go_back()
         elif choice == 'f' and 'prompt' in dir(self):
@@ -67,6 +68,69 @@ class StatPage(Page):
 
     def __init__(self,name, key, to=[]):
         super().__init__(name, key, to)
+
+
+    def prompt(self):
+        active_players = [player for player in players if player.active]
+        if len(active_players) < 1:
+            self.to[0].back = self
+            self.to[0].show_options()
+        playing = True
+        while playing:
+            still_playing = input("Would you like to keep entering games? (Y/N) ").lower()
+            if still_playing == "n":
+                playing = False
+                break
+            elif still_playing != "y":
+                print("Invalid input, try again.")
+                self.prompt()
+
+            for player in active_players:
+                print("\nEnter stats for %s: " % player.name)
+                stats = defaultdict()
+                sr_win = self.get_sr(player)
+                stats["sr"] = sr_win[0]
+                stats["win"] = sr_win[1]
+                stats["hero"] = self.get_hero()
+                stats["perf"] = self.get_perf()
+                stats["time"] = time.strftime("%m %e %y %R").replace(":", " ")
+                player.add_game(stats)
+                player.activate() #Updates stats for next iteration
+
+
+    def get_sr(self, player):
+        new_sr = int(input("Enter new SR: "))
+        sr_change = new_sr - player.stats["sr"][-1]
+        if sr_change > 0:
+            win = "W"
+            print("Nice win! You gained %d SR!" % abs(sr_change))
+        elif sr_change == 0:
+            win = "T"
+            print("Awh a tie! Weird!")
+        else:
+            win = "L"
+            print("Awe shucks, you lost... You lost %d SR..." % abs(sr_change))
+
+        return (new_sr, win)
+
+
+    def get_hero(self):
+        heroes = [line.replace("\n", "") for line in open('data/Heroes.txt')]
+        hero = input("Most Played Hero: ")
+        if hero in heroes:
+            return hero
+        else:
+            print("Not a real hero! Try again.")
+            self.prompt()
+
+
+    def get_perf(self):
+        perf = int(input("Performance 1-10: "))
+        if perf <= 10 and perf >= 0:
+            return perf
+        else:
+            print("Out of range, try again")
+            self.prompt()
 
 
 class PlayersPage(Page):
@@ -117,4 +181,3 @@ class PlayersPage(Page):
         for player in players:
             if player not in active:
                 player.deactivate()
-            print(player.active)
