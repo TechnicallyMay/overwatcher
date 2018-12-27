@@ -9,7 +9,7 @@ class Player():
         self.file_name = 'data\players\%s.txt' % name
         if start_SR:
             with open(self.file_name, "w+") as new_player:
-                new_player.write(str(start_SR))
+                new_player.write(str(start_SR) + "\n")
                 new_player.close()
         self.active = False
 
@@ -97,3 +97,9 @@ class Player():
             stats[sorted_rank[i][1]]["rank"] = i + 1
 
         return stats
+
+
+    def add_game(self, stats):
+        line = "%s %d %s %d %s\n" % (stats["win"], stats["sr"], stats["hero"], stats["perf"], stats["time"])
+        with open (self.file_name, 'a') as f:
+            f.write(line)
