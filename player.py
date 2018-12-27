@@ -88,6 +88,6 @@ class Player():
 
         sorted_rank = sorted(ranking, reverse=True)
         for i in range(len(sorted_rank)):
-            stats[sorted_rank[i][1]]["rank"] = i +1
+            stats[sorted_rank[i][1]]["rank"] = i + 1
 
         return stats
