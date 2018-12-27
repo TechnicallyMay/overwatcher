@@ -11,15 +11,18 @@ class Player():
             with open(self.file_name, "w+") as new_player:
                 new_player.write(str(start_SR))
                 new_player.close()
+        self.active = False
+
+
+    def activate(self):
         self.stats = self.get_stats()
         self.sr_change = self.sr_change_per_game()
         self.main_hero = self.most_played_hero()
         self.hero_stats = self.hero_stats_per_game()
 
-
     def get_stats(self):
         stats = defaultdict(list)
-        
+
         with open (self.file_name, "r") as games:
             for i, game in enumerate(games):
                 game_stats = game.split()
