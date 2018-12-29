@@ -71,6 +71,17 @@ class Page():
         self.back.show_options()
 
 
+    def active_players(self):
+        return [player for player in players if player.active]
+
+
+    def check_active_players(self):
+        if len(self.active_players()) < 1:
+            return False
+        else:
+            return True
+
+
 class PlotPage(Page):
 
     def __init__(self, name, key, description, to=[]):
@@ -78,10 +89,20 @@ class PlotPage(Page):
 
 
     def prompt(self):
-        active_players = [player for player in players if player.active]
-        for player in active_players:
-            self.disp_misc_stats(player)
-        print()
+        if not self.check_active_players():
+            print("Please select active players.\n")
+            self.to[0].back = self
+            self.to[0].show_options()
+        choice = input("Would you like to view plots (P), or misc stats (M)?").lower()
+        if choice == "p":
+            self.plot_stats()
+        elif choice == "m":
+            for player in self.active_players():
+                self.disp_misc_stats(player)
+            print()
+        else:
+            print("Invalid choice, going back.")
+            self.go_back()
 
 
     def disp_misc_stats(self, player):
@@ -103,8 +124,7 @@ class StatPage(Page):
 
 
     def prompt(self):
-        active_players = [player for player in players if player.active]
-        if len(active_players) < 1:
+        if not self.check_active_players():
             print("Please select active players.\n")
             self.to[0].back = self
             self.to[0].show_options()
