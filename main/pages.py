@@ -229,3 +229,4 @@ class PlayersPage(Page):
         for player in players:
             if player not in active:
                 player.deactivate()
+        self.back.show_options()
