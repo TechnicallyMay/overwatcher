@@ -77,6 +77,25 @@ class PlotPage(Page):
         super().__init__(name, key, description, to)
 
 
+    def prompt(self):
+        active_players = [player for player in players if player.active]
+        for player in active_players:
+            self.disp_misc_stats(player)
+        print()
+
+
+    def disp_misc_stats(self, player):
+        print("\n" + player.name + ":")
+        print("Placed SR: %d" % player.stats["sr"][0])
+        print("Season High: %d" % max(player.stats["sr"]))
+        print("Season Low: %d" % min(player.stats["sr"]))
+        print("Current SR: %d" % player.stats["sr"][-1])
+        print("Average SR Gain: %d" % player.av_gain_loss[0])
+        print("Average SR Loss: %d" % player.av_gain_loss[1])
+        print("Most Played Hero: %s" % player.main_hero)
+        print("Best Hero: %s" % player.best_hero)
+
+
 class StatPage(Page):
 
     def __init__(self, name, key, description, to=[]):
@@ -121,7 +140,6 @@ class StatPage(Page):
                 valid = True
             except ValueError:
                 print("\nInvalid input, try again")
-
         sr_change = int_sr - player.stats["sr"][-1]
         if sr_change > 0:
             win = "W"
@@ -133,19 +151,18 @@ class StatPage(Page):
             win = "L"
             print("Awe shucks, you lost... You lost %d SR..." % abs(sr_change))
 
-        False (int_sr, win)
+        return (int_sr, win)
 
 
     def get_hero(self):
         valid = False
-        heroes = [line.replace("\n", "") for line in open('data/Heroes.txt')]
+        heroes = [line.replace("\n", "") for line in open('../data/Heroes.txt')]
         while not valid:
             hero = input("Most Played Hero: ")
             if hero in heroes:
                 valid = True
             else:
                 print("\nNot a real hero! Try again.")
-
         return hero
 
 
@@ -161,7 +178,6 @@ class StatPage(Page):
                     print("Out of range, try again")
             except ValueError:
                 print("\nInvalid input, try again")
-
         return int_perf
 
 
