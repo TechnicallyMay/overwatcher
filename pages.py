@@ -14,7 +14,7 @@ for name in player_names:
 
 class Page():
 
-    def __init__(self, name, key, to=[]):
+    def __init__(self, name, key, description, to=[]):
         self.name = name
         #Which key leads to this page
         self.key = key
@@ -22,16 +22,28 @@ class Page():
         self.to = to
         #Where the page came from, set by other page objects
         self.back = None
+        self.description = description
 
 
     def show_options(self):
+        print(self.get_header())
         for p in self.to:
-            print("\nPress '%s' for %s" % (p.key.upper(), p.name))
+            print("Press '%s' for %s" % (p.key.upper(), p.name))
         if self.back != None:
-            print("\nPress 'B' to return to %s" % self.back.name)
+            print("Press 'B' to return to %s" % self.back.name)
         if 'prompt' in dir(self):
-            print("\nPress 'F' to %s" % self.name)
+            print("Press 'F' to %s" % self.description)
         self.get_page_input()
+
+
+    def get_header(self):
+        max_length = 25
+        name_length = len(self.name)
+        buffer = max_length - name_length
+        side = "=" * round(buffer / 2)
+        header = side + self.name.upper() + side
+
+        return header
 
 
     def get_page_input(self):
@@ -60,24 +72,25 @@ class Page():
 
 class PlotPage(Page):
 
-    def __init__(self, name, key, to=[]):
-        super().__init__(name, key, to)
+    def __init__(self, name, key, description, to=[]):
+        super().__init__(name, key, description, to)
 
 
 class StatPage(Page):
 
-    def __init__(self,name, key, to=[]):
-        super().__init__(name, key, to)
+    def __init__(self, name, key, description, to=[]):
+        super().__init__(name, key, description, to)
 
 
     def prompt(self):
         active_players = [player for player in players if player.active]
         if len(active_players) < 1:
+            print("Please select active players.\n")
             self.to[0].back = self
             self.to[0].show_options()
         playing = True
         while playing:
-            still_playing = input("Would you like to keep entering games? (Y/N) ").lower()
+            still_playing = input("Would you like to enter games? (Y/N) ").lower()
             if still_playing == "n":
                 playing = False
                 break
@@ -99,8 +112,16 @@ class StatPage(Page):
 
 
     def get_sr(self, player):
-        new_sr = int(input("Enter new SR: "))
-        sr_change = new_sr - player.stats["sr"][-1]
+        valid = False
+        while not valid:
+            new_sr = input("Enter new SR: ")
+            try:
+                int_sr = int(new_sr)
+                valid = True
+            except ValueError:
+                print("\nInvalid input, try again")
+
+        sr_change = int_sr - player.stats["sr"][-1]
         if sr_change > 0:
             win = "W"
             print("Nice win! You gained %d SR!" % abs(sr_change))
@@ -111,32 +132,42 @@ class StatPage(Page):
             win = "L"
             print("Awe shucks, you lost... You lost %d SR..." % abs(sr_change))
 
-        return (new_sr, win)
+        return (int_sr, win)
 
 
     def get_hero(self):
+        valid = False
         heroes = [line.replace("\n", "") for line in open('data/Heroes.txt')]
-        hero = input("Most Played Hero: ")
-        if hero in heroes:
-            return hero
-        else:
-            print("Not a real hero! Try again.")
-            self.prompt()
+        while not valid:
+            hero = input("Most Played Hero: ")
+            if hero in heroes:
+                valid = True
+            else:
+                print("\nNot a real hero! Try again.")
+
+        return hero
 
 
     def get_perf(self):
-        perf = int(input("Performance 1-10: "))
-        if perf <= 10 and perf >= 0:
-            return perf
-        else:
-            print("Out of range, try again")
-            self.prompt()
+        valid = False
+        while not valid:
+            perf = input("Performance 1-10: ")
+            try:
+                int_perf = int(perf)
+                if int_perf <= 10 and int_perf >= 0:
+                    valid = True
+                else:
+                    print("Out of range, try again")
+            except ValueError:
+                print("\nInvalid input, try again")
+
+        return int_perf
 
 
 class PlayersPage(Page):
 
-    def __init__(self,name, key, to=[]):
-        super().__init__(name, key, to)
+    def __init__(self, name, key, description, to=[]):
+        super().__init__(name, key, description, to)
 
 
     def prompt(self):
@@ -161,7 +192,7 @@ class PlayersPage(Page):
         except ValueError:
             print("Invalid input, try again.")
             self.add_player()
-        player = Player(name, sr)
+        players.append(Player(name, sr))
 
 
 
