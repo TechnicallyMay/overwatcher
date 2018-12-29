@@ -6,7 +6,7 @@ class Player():
 
     def __init__(self, name, start_SR=None):
         self.name = name
-        self.file_name = 'data\players\%s.txt' % name
+        self.file_name = '..\data\players\%s.txt' % name
         if start_SR:
             with open(self.file_name, "w+") as new_player:
                 new_player.write(str(start_SR) + "\n")
@@ -17,9 +17,12 @@ class Player():
     def activate(self):
         self.active = True
         self.stats = self.get_stats()
-        self.sr_change = self.sr_change_per_game()
-        self.main_hero = self.most_played_hero()
-        self.hero_stats = self.hero_stats_per_game()
+        if len(self.stats) > 1:
+            self.sr_change = self.sr_change_per_game()
+            self.hero_stats = self.hero_stats_per_game()
+            self.main_hero = self.most_played_hero()
+            self.best_hero = self.get_best_hero()
+            self.av_gain_loss = self.get_gain_loss()
 
 
     def deactivate(self):
@@ -27,15 +30,16 @@ class Player():
         try:
             del(self.stats)
             del(self.sr_change)
-            del(self.main_hero)
             del(self.hero_stats)
+            del(self.main_hero)
+            del(self.best_hero)
+            del(self.av_gain_loss)
         except AttributeError:
             pass
 
 
     def get_stats(self):
         stats = defaultdict(list)
-
         with open (self.file_name, "r") as games:
             for i, game in enumerate(games):
                 game_stats = game.split()
@@ -49,13 +53,7 @@ class Player():
                     stats["perf"].append(int(game_stats[3]))
                     time = [int(x) for x in game_stats[4:]]
                     stats["time"].append(time)
-
         return stats
-
-
-    def most_played_hero(self):
-        count = Counter(self.stats["hero"])
-        return count.most_common(1)[0][0]
 
 
     def sr_change_per_game(self):
@@ -67,7 +65,6 @@ class Player():
 
     def hero_stats_per_game(self):
         hero_stats = defaultdict(lambda: defaultdict(int))
-
         for i, hero in enumerate(self.stats["hero"]):
             sr_change = self.sr_change[i]
             hero_stats[hero]["total_change"] += sr_change
@@ -78,7 +75,6 @@ class Player():
             else:
                 hero_stats[hero]["total_lost"] += abs(sr_change)
         ranked_stats = self.rank_heroes(hero_stats)
-
         return ranked_stats
 
 
@@ -95,8 +91,42 @@ class Player():
         sorted_rank = sorted(ranking, reverse=True)
         for i in range(len(sorted_rank)):
             stats[sorted_rank[i][1]]["rank"] = i + 1
-
         return stats
+
+
+    def most_played_hero(self):
+        count = Counter(self.stats["hero"])
+        return count.most_common(1)[0][0]
+
+
+    def get_best_hero(self):
+        for hero, stats in self.hero_stats.items():
+            if stats["rank"] == 1:
+                return hero
+
+
+    def get_gain_loss(self):
+        gain = 0
+        wins = 0
+        loss = 0
+        losses = 0
+        for change in self.sr_change:
+            if change > 0:
+                gain += change
+                wins += 1
+            elif change < 0:
+                loss += change
+                losses += 1
+        try:
+            av_gain = gain / wins
+        except ZeroDivisionError:
+            av_gain = 0
+        try:
+            av_loss = loss / losses
+        except ZeroDivisionError:
+            av_loss = 0
+        return (av_gain, av_loss)
+
 
 
     def add_game(self, stats):
