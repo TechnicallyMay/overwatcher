@@ -1,6 +1,7 @@
 import glob
 import time
 import os
+import plot
 from collections import defaultdict
 from player import Player
 
@@ -103,6 +104,13 @@ class PlotPage(Page):
         else:
             print("Invalid choice, going back.")
             self.go_back()
+
+
+    def plot_stats(self):
+        players_sr = [list.stats["sr"] for list in self.active_players()]
+        sr_plot = plot.SRPlot(players_sr, "Test", self.active_players())
+        sr_plot.build()
+        sr_plot.show()
 
 
     def disp_misc_stats(self, player):
