@@ -2,12 +2,15 @@ import glob
 import time
 import os
 import plot
+import sqlite3
 from collections import defaultdict
 from player import Player
 
 
-player_names = [os.path.basename(file).replace(".txt", "")
-                    for file in glob.glob('../data/players/*.txt')]
+conn = sqlite3.connect('../data/players/player_data.db')
+crsr = conn.cursor();
+player_names = [name[0] for name in crsr.execute('SELECT name FROM players')]
+print(player_names)
 players = []
 for name in player_names:
     if name != "testing_data":
