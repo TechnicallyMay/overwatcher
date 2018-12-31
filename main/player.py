@@ -128,7 +128,6 @@ class Player():
         return (av_gain, av_loss)
 
 
-
     def add_game(self, stats):
         line = "%s %d %s %d %s\n" % (stats["win"], stats["sr"], stats["hero"], stats["perf"], stats["time"])
         with open (self.file_name, 'a') as f:

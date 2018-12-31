@@ -1,6 +1,7 @@
 import glob
 import time
 import os
+import plot
 from collections import defaultdict
 from player import Player
 
@@ -43,7 +44,6 @@ class Page():
         buffer = max_length - name_length
         side = "=" * round(buffer / 2)
         header = side + self.name.upper() + side
-
         return header
 
 
@@ -95,7 +95,7 @@ class PlotPage(Page):
             self.to[0].show_options()
         choice = input("Would you like to view plots (P), or misc stats (M)?").lower()
         if choice == "p":
-            self.plot_stats()
+            self.choose_plot()
         elif choice == "m":
             for player in self.active_players():
                 self.disp_misc_stats(player)
@@ -103,6 +103,58 @@ class PlotPage(Page):
         else:
             print("Invalid choice, going back.")
             self.go_back()
+
+
+    def choose_plot(self):
+        choice = input("\nSR Plot (S), Hero Win/Loss (W), Hero SR Change (C), or Performance (P)? ").lower()
+        print()
+        if choice == "s":
+            self.sr_plot()
+        elif choice == "w":
+            self.win_loss_plot()
+        elif choice == "c":
+            self.hero_sr_change()
+        elif choice == "p":
+            self.performance_plot()
+
+
+    def sr_plot(self):
+        chart = plot.SRPlot("SR Over Time")
+        for player in self.active_players():
+            chart.add(player.stats["sr"], player.name)
+        chart.build()
+        chart.show()
+
+
+    def win_loss_plot(self):
+        for player in self.active_players():
+            chart = plot.WinLossByHero(player.name)
+            for hero, stats in player.hero_stats.items():
+                wins = stats["wins"]
+                played = stats["played_games"]
+                win_loss = wins / played
+                chart.add(win_loss, hero)
+            chart.build()
+            chart.show()
+
+
+    def hero_sr_change(self):
+        for player in self.active_players():
+            chart = plot.SRByHero(player.name)
+            for hero, stats in player.hero_stats.items():
+                chart.add(stats["av_change"], hero)
+            chart.build()
+            chart.show()
+
+
+    def performance_plot(self):
+        chart = plot.PerformancePlot("Performance")
+        for player in self.active_players():
+            chart.add(player.sr_change,
+                      player.stats["perf"],
+                      player.name)
+        chart.build()
+        chart.show()
 
 
     def disp_misc_stats(self, player):
@@ -230,7 +282,6 @@ class PlayersPage(Page):
             print("Invalid input, try again.")
             self.add_player()
         players.append(Player(name, sr))
-
 
 
     def set_active(self):
