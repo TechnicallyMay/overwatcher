@@ -1,4 +1,5 @@
 import glob
+import sqlite3
 from collections import Counter, defaultdict
 
 
@@ -6,11 +7,15 @@ class Player():
 
     def __init__(self, name, start_SR=None):
         self.name = name
-        self.file_name = '..\data\players\%s.txt' % name
+        self.open_db()
         if start_SR:
-            with open(self.file_name, "w+") as new_player:
-                new_player.write(str(start_SR) + "\n")
-                new_player.close()
+            command = """INSERT INTO players (name, placed_sr)
+                         VALUES (?, ?)"""
+            self.crsr.execute(command, [name, start_SR])
+        self.crsr.execute("SELECT id FROM players WHERE name = ?", (name,))
+        self.id = self.crsr.fetchone()[0]
+        print(self.name,self.id)
+        self.close_db()
         self.active = False
 
 
@@ -38,21 +43,28 @@ class Player():
             pass
 
 
+    def open_db(self):
+        self.conn = sqlite3.connect('../data/players/player_data.db')
+        self.crsr = self.conn.cursor();
+
+
+    def close_db(self):
+        self.conn.commit()
+        self.conn.close()
+
+
     def get_stats(self):
         stats = defaultdict(list)
-        with open (self.file_name, "r") as games:
-            for i, game in enumerate(games):
-                game_stats = game.split()
-                if game_stats[0].isdigit():
-                    stats["sr"].append(int(game_stats[0]))
-                else:
-                    win = game_stats[0] == 'W'
-                    stats["win"].append(win)
-                    stats["sr"].append(int(game_stats[1]))
-                    stats["hero"].append(game_stats[2])
-                    stats["perf"].append(int(game_stats[3]))
-                    time = [int(x) for x in game_stats[4:]]
-                    stats["time"].append(time)
+        self.open_db()
+        command = """SELECT *
+                     FROM games
+                     WHERE player_id = ?"""
+        for line in self.crsr.execute(command, (self.id,)):
+            stats["sr"].append(line[1])
+            stats["hero"].append(line[2])
+            stats["performance"].append(line[3])
+            stats["time"].append(line[4])
+        self.close_db()
         return stats
 
 
@@ -129,6 +141,9 @@ class Player():
 
 
     def add_game(self, stats):
-        line = "%s %d %s %d %s\n" % (stats["win"], stats["sr"], stats["hero"], stats["perf"], stats["time"])
-        with open (self.file_name, 'a') as f:
-            f.write(line)
+        self.open_db()
+        command = """
+                    INSERT INTO games
+                    VALUES (?, ?, ?, ?, ?)"""
+        self.crsr.execute(command, stats)
+        self.close_db()

@@ -10,11 +10,11 @@ from player import Player
 conn = sqlite3.connect('../data/players/player_data.db')
 crsr = conn.cursor();
 player_names = [name[0] for name in crsr.execute('SELECT name FROM players')]
-print(player_names)
 players = []
 for name in player_names:
     if name != "testing_data":
         players.append(Player(name))
+conn.close()
 
 
 class Page():
@@ -196,12 +196,11 @@ class StatPage(Page):
             for player in active_players:
                 print("\nEnter stats for %s: " % player.name)
                 stats = defaultdict()
-                sr_win = self.get_sr(player)
-                stats["sr"] = sr_win[0]
-                stats["win"] = sr_win[1]
-                stats["hero"] = self.get_hero()
-                stats["perf"] = self.get_perf()
-                stats["time"] = time.strftime("%m %e %y %R").replace(":", " ")
+                stats = [player.id]
+                stats.append(self.get_sr(player))
+                stats.append(self.get_hero())
+                stats.append(self.get_perf())
+                stats.append(time.strftime("%Y-%m-%d %H:%M:%S"))
                 player.add_game(stats)
                 player.activate() #Updates stats for next iteration
 
@@ -217,16 +216,13 @@ class StatPage(Page):
                 print("\nInvalid input, try again")
         sr_change = int_sr - player.stats["sr"][-1]
         if sr_change > 0:
-            win = "W"
             print("Nice win! You gained %d SR!" % abs(sr_change))
         elif sr_change == 0:
-            win = "T"
             print("Awh a tie! Weird!")
         else:
-            win = "L"
             print("Awe shucks, you lost... You lost %d SR..." % abs(sr_change))
 
-        return (int_sr, win)
+        return (int_sr)
 
 
     def get_hero(self):

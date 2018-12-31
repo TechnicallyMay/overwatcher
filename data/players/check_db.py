@@ -5,10 +5,13 @@ conn = sqlite3.connect('player_data.db')
 crsr = conn.cursor();
 command = """
 SELECT *
-FROM players;
+FROM games
+WHERE player_id = 1
 """
 
-for line in crsr.execute(command):
-    print(line)
+crsr.execute(command)
+print(crsr.fetchall()[0])
+# for line in crsr.execute(command):
+#     print(line[0])
 
 conn.close()
