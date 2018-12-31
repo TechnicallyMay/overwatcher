@@ -149,7 +149,7 @@ class PerformancePlot(Plot):
     def add(self, change, performance, name):
         self.ax.scatter(change,
                         performance,
-                        label = name,
+                        label = name
                         )
 
 
