@@ -12,9 +12,8 @@ class Player():
             command = """INSERT INTO players (name, placed_sr)
                          VALUES (?, ?)"""
             self.crsr.execute(command, [name, start_SR])
-        self.crsr.execute("SELECT id FROM players WHERE name = ?", (name,))
-        self.id = self.crsr.fetchone()[0]
-        print(self.name,self.id)
+        self.crsr.execute("SELECT id, placed_sr FROM players WHERE name = ?", (name,))
+        self.id, self.placed_sr = self.crsr.fetchone()
         self.close_db()
         self.active = False
 
@@ -44,7 +43,7 @@ class Player():
 
 
     def open_db(self):
-        self.conn = sqlite3.connect('../data/players/player_data.db')
+        self.conn = sqlite3.connect('../data/player_data.db')
         self.crsr = self.conn.cursor();
 
 
@@ -55,6 +54,7 @@ class Player():
 
     def get_stats(self):
         stats = defaultdict(list)
+        stats["sr"].append(self.placed_sr)
         self.open_db()
         command = """SELECT *
                      FROM games
@@ -62,7 +62,7 @@ class Player():
         for line in self.crsr.execute(command, (self.id,)):
             stats["sr"].append(line[1])
             stats["hero"].append(line[2])
-            stats["performance"].append(line[3])
+            stats["perf"].append(line[3])
             stats["time"].append(line[4])
         self.close_db()
         return stats
@@ -71,7 +71,15 @@ class Player():
     def sr_change_per_game(self):
         sr_change = []
         for i in range(1, len(self.stats["sr"])):
-            sr_change.append(self.stats["sr"][i] - self.stats["sr"][i-1])
+            change = self.stats["sr"][i] - self.stats["sr"][i - 1]
+            if change > 0:
+                win = True
+            elif change == 0:
+                win = None
+            else:
+                win = False
+            self.stats["win"].append(win)
+            sr_change.append(change)
         return sr_change
 
 
@@ -84,7 +92,7 @@ class Player():
             if self.stats["win"][i]:
                 hero_stats[hero]["wins"] += 1
                 hero_stats[hero]["total_gained"] += sr_change
-            else:
+            elif self.stats["win"] != None:
                 hero_stats[hero]["total_lost"] += abs(sr_change)
         ranked_stats = self.rank_heroes(hero_stats)
         return ranked_stats
