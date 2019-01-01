@@ -7,7 +7,7 @@ from collections import defaultdict
 from player import Player
 
 
-conn = sqlite3.connect('../data/players/player_data.db')
+conn = sqlite3.connect('../data/player_data.db')
 crsr = conn.cursor();
 player_names = [name[0] for name in crsr.execute('SELECT name FROM players')]
 players = []
@@ -161,7 +161,7 @@ class PlotPage(Page):
 
 
     def disp_misc_stats(self, player):
-        print("\n" + player.name + ":")
+        print("\n" + player.name + "-")
         print("Placed SR: %d" % player.stats["sr"][0])
         print("Season High: %d" % max(player.stats["sr"]))
         print("Season Low: %d" % min(player.stats["sr"]))
