@@ -10,7 +10,7 @@ WHERE player_id = 1
 """
 
 crsr.execute(command)
-print(crsr.fetchall()[0])
+print(crsr.fetchall())
 # for line in crsr.execute(command):
 #     print(line[0])
 
