@@ -193,7 +193,7 @@ class StatPage(Page):
                 print("Invalid input, try again.")
                 self.prompt()
 
-            for player in active_players:
+            for player in self.active_players():
                 print("\nEnter stats for %s: " % player.name)
                 stats = defaultdict()
                 stats = [player.id]
