@@ -17,10 +17,6 @@ class Plot():
 
 
     def set_axis_labels(self):
-        if "x_lim" in dir(self):
-            plt.xlim(self.x_lim)
-        if "y_lim" in dir(self):
-            plt.ylim(self.y_lim)
         if "x_ticks" in dir(self):
             self.ax.set_xticks(self.x_ticks)
         if "x_labels" in dir(self):
@@ -29,6 +25,10 @@ class Plot():
             self.ax.set_yticks(self.y_ticks)
         if "y_labels" in dir(self):
             self.ax.set_yticklabels(self.y_labels)
+        if "x_lim" in dir(self):
+            plt.xlim(self.x_lim)
+        if "y_lim" in dir(self):
+            plt.ylim(self.y_lim)
 
 
 class SRPlot(Plot):
@@ -149,7 +149,7 @@ class PerformancePlot(Plot):
     def add(self, change, performance, name):
         self.ax.scatter(change,
                         performance,
-                        label = name,
+                        label = name
                         )
 
 

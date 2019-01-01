@@ -28,13 +28,12 @@ class PlayerDataTestProperties(PlayerDataTestCase):
         "Incorrect performance list")
         self.assertEqual(stats["time"],
         [
-        [0, 30, 2000, 24, 27],
-        [5, 20, 2009, 22, 57],
-        [7, 18, 2014, 16, 53],
-        [2, 19, 2016, 10, 42],
-        [1, 18, 2013, 14, 44]
-        ],
-        "Incorrect time list"
+        '202000-00-30 24:27:00',
+        '202009-05-20 22:57:00',
+        '202014-07-18 16:53:00',
+        '202016-02-19 10:42:00',
+        '202013-01-18 14:44:00'
+        ]
         )
 
 
