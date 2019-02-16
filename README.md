@@ -1,5 +1,5 @@
 # Overwatcher
-Users can utilize this program to keep track of Overwatch competitive stats. Useful for finding heroes that the user is good at playing, as well as keeping track of progress over time. Some real sample data is inclueded to check out features.
+Users can utilize this program to keep track of Overwatch competitive stats. Useful for finding heroes that the user is good at playing, as well as keeping track of progress over time. Some real sample data is included to check out features.
 ## Usage
 ```
 Run main.py,
